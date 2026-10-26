@@ -11,9 +11,9 @@ target/
 .env.*
 *service-account*.json
 serviceAccountKey.json
-firebase_options.dart
 android/local.properties
 google-services.json
 GoogleService-Info.plist
 *.jks
 *.keystore
+
