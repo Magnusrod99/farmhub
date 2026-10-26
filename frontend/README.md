@@ -39,8 +39,6 @@ flutterfire configure
 import 'firebase_options.dart';
 ```
 
-8. Replace `await Firebase.initializeApp();` with:
-
 ```dart
 await Firebase.initializeApp(
   options: DefaultFirebaseOptions.currentPlatform,
