@@ -1,0 +1,51 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedInAs(userId) {
+      return request.auth != null && request.auth.uid == userId;
+    }
+
+    // Each customer can create/read their own profile.
+    // Public clients cannot assign seller, owner, or admin privileges.
+    match /users/{userId} {
+      allow get: if isSignedInAs(userId);
+      allow list: if false;
+
+      allow create: if isSignedInAs(userId)
+        && request.resource.data.keys().hasAll([
+          'uid', 'name', 'email', 'phone',
+          'role', 'accountType', 'active', 'createdAt'
+        ])
+        && request.resource.data.keys().hasOnly([
+          'uid', 'name', 'email', 'phone',
+          'role', 'accountType', 'active', 'createdAt'
+        ])
+        && request.resource.data.uid == userId
+        && request.resource.data.name is string
+        && request.resource.data.email is string
+        && request.resource.data.phone is string
+        && request.resource.data.role == 'CUSTOMER'
+        && request.resource.data.accountType == 'CUSTOMER'
+        && request.resource.data.active == true
+        && request.resource.data.createdAt == request.time;
+
+      // A user may edit basic profile details only.
+      // Role, account type, activation state, UID and creation time stay protected.
+      allow update: if isSignedInAs(userId)
+        && request.resource.data.diff(resource.data).affectedKeys()
+          .hasOnly(['name', 'phone'])
+        && request.resource.data.name is string
+        && request.resource.data.phone is string;
+
+      allow delete: if false;
+    }
+
+    // Products, equipment, bookings, orders and all other data remain closed
+    // until dedicated role/ownership rules are implemented.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
