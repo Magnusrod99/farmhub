@@ -21,25 +21,22 @@ flutter pub get
 
 ## Configure Firebase
 
-1. Create a Firebase project in the Firebase Console.
-2. Enable **Authentication → Sign-in method → Email/Password**.
-3. Create a Cloud Firestore database.
-4. Install/configure FlutterFire:
+1. Open the Firebase project and enable **Authentication → Sign-in method → Email/Password**.
+2. Create a Cloud Firestore database.
+3. Install/configure FlutterFire:
 
 ```powershell
 dart pub global activate flutterfire_cli
-flutterfire configure
+dart pub global run flutterfire_cli:flutterfire configure --project=farmhub-4042c --platforms=web
 ```
 
-5. Select the Firebase project and register the Web app.
-6. The command generates `lib/firebase_options.dart`. This generated file is intentionally ignored by Git.
-7. In `lib/main.dart`, add:
+4. Select the Firebase project and register the Web app if prompted. The command generates `lib/firebase_options.dart`.
+5. Keep `lib/firebase_options.dart` in Git so other developers can build the web app. It contains client configuration, not a Firebase Admin service-account private key. Never commit Admin SDK private keys.
+6. Initialize Firebase in `lib/main.dart`:
 
 ```dart
 import 'firebase_options.dart';
-```
 
-```dart
 await Firebase.initializeApp(
   options: DefaultFirebaseOptions.currentPlatform,
 );
@@ -47,10 +44,11 @@ await Firebase.initializeApp(
 
 ## Run in Chrome
 
-Start the backend separately, then from `frontend/` run:
+From `frontend/` run:
 
 ```powershell
+flutter pub get
 flutter run -d chrome --dart-define=FARMHUB_API=http://localhost:8080/api
 ```
 
-Firebase Authentication must be configured before login/registration can work.
+Firebase Authentication must be enabled and configured before login/registration can work. The backend must also be running for API features.
